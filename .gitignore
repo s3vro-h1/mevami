@@ -2,3 +2,8 @@
 oauth.json
 __pycache__/
 *.pyc
+logs/
+config.py
+generate_list.py
+publish.bat
+publish.sh
