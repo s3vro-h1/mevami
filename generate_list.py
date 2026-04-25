@@ -128,7 +128,6 @@ def save_genres():
         data = json.load(f)
         genres = list({item['genre'] for item in data})
         genres.sort()
-        print(genres)
     
     with open("genres.json", 'w', encoding='utf-8') as f:
         json.dump(genres, f, indent=4, ensure_ascii=False)
@@ -144,7 +143,7 @@ if __name__ == "__main__":
     if os.path.exists(readme_path):
         with open(readme_path, "r", encoding="utf-8") as f:
             content = f.read()
-        if "Mevami is an automated system" in content:
+        if "**Mevami** is an automated system" in content:
             with open(readme_path, "w", encoding="utf-8") as f:
                 # You can put whatever you want here
                 # I just put it so when you upload your repo
