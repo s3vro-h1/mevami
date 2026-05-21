@@ -12,23 +12,38 @@ Mevami changes how you manage your Clone Hero library. It makes it easier to:
 
 
 <center>
-<img src="https://imgur.com/gZSKBas.png" width="80%">
+<img src="https://imgur.com/J08k67f.png" width="90%">
 </center>
 
 ## Features
 
-* **Filtering**: Search by song title, artist, or album, and filter by music genre.
-* **Instrument Difficulty Sorting**: Sort your entire library based on specific instrument difficulties.
+* **Filtering**: Search by song title, artist, or album.
+
+* **Instrument Difficulty Sorting**: Sort your entire library based on specific instrument difficulties or intensity.
+
+* **Guitar Hero Live support**: Guitar-Live, Bass-Live, Rhythm-Live, and Guitar Co-op-Live instruments are fully recognized and displayed alongside standard instruments.
 
 <center>
-<img src="https://imgur.com/3C6cvFd.png" width="80%">
+<img src="https://imgur.com/WYYGZiv.png" width="90%">
+</center>
+
+* **Difficulty badges on each of the instruments**: Get the difficulties available for each of the available instruments for a song simply by clicking on the instrument icon.
+
+
+
+
+
+
+
+<center>
+<img src="https://imgur.com/tnKXgfB.png" width="50%">
 </center>
 
 * **Randomizer**: A "Random Song" button that helps pick the next track.
 
 
 <center>
-<img src="https://imgur.com/42VAuUF.png" width="40%">
+<img src="https://imgur.com/42VAuUF.png" width="50%">
 </center>
 
 * **External Links**: Spotify and YouTube search buttons for every song in your catalog.
@@ -114,7 +129,27 @@ sudo pacman -S python
 
 ---
 
-### Step 2 — Decide How You Want to Host It
+### Step 2 — Install the Required Python Libraries
+
+Once Python is installed, you need to install the two libraries Mevami depends on. Open a terminal in the Mevami folder and run:
+
+**Windows:**
+```
+pip install -r requirements.txt
+```
+
+**Mac / Linux:**
+```bash
+pip3 install -r requirements.txt
+```
+
+This installs `mido` (for reading MIDI chart files) and `tqdm` (for the progress bar during scanning). You only need to do this once.
+
+> 💡 **Tip:** If you get a "pip not found" error on Mac/Linux, try `python3 -m pip install -r requirements.txt` instead.
+
+---
+
+### Step 3 — Decide How You Want to Host It
 
 Before installing anything else, think about how you want to share your setlist:
 
@@ -129,7 +164,7 @@ Before installing anything else, think about how you want to share your setlist:
 
 
 
-### Step 3 — Installing Git
+### Step 4 — Installing Git
 
 You have two ways to go here — pick whichever feels more comfortable:
 
@@ -209,7 +244,7 @@ The trickiest part is Git Authentication. I recommend using GitHub Classic Acces
 
 ---
 
-### Step 4 — Clone the Mevami Repo
+### Step 5 — Clone the Mevami Repo
 
 You need your own personal copy of Mevami on GitHub so you can host your setlist. Pick the path that matches how you set up Git in the previous step:
 
@@ -274,7 +309,7 @@ git push -u origin main
 
 ---
 
-### Step 5 — Point Mevami to Your Songs
+### Step 6 — Point Mevami to Your Songs
 
 Open the file called `config.py` in a text editor (Notepad works fine on Windows). You'll see this:
 
@@ -323,7 +358,7 @@ If it works, you'll see it scanning your library and two files will be created: 
 
 ---
 
-### Step 6 — Enable Your Website
+### Step 7 — Enable Your Website
 
 ### 🌎 RECOMMENDED: GitHub Pages Setup
 *Make your setlist accessible to anyone, anywhere.*
@@ -437,7 +472,19 @@ Just double-click `publish.bat`. A window will open, do its thing, and close. Yo
 
 ## Customize your website!!
 
-You can personalize your setlist page by editing the `config.json` file — no coding required. Open it with any text editor (Notepad, TextEdit, VS Code, anything works).
+You can personalize your setlist page in two ways: directly from the website itself, or by editing the `config.json` file.
+
+### 🎨 Using the Theme Panel (easiest way)
+
+The website has a built-in **Theme panel** — no file editing needed. Just click the **🎨 Theme** button in the top bar of your setlist page. A side panel will open where you can pick colors for every part of the UI using color pickers, and see your changes live as you make them.
+
+When you're happy with the result, click **⬇ Export config.json** to download a ready-to-use `config.json` with your chosen colors baked in. Replace the existing `config.json` in your Mevami folder with that file, then push the update so your hosted site reflects the new theme permanently.
+
+> 💡 Colors are also saved in your browser automatically, so your customizations persist locally even before you export.
+
+### ✏️ Editing `config.json` directly
+
+You can also personalize your setlist page by editing the `config.json` file — no coding required. Open it with any text editor (Notepad, TextEdit, VS Code, anything works).
 
 Here are some examples:
 <center>
@@ -501,12 +548,15 @@ Make it even easier for your friends to access your setlist! Just paste your web
 
 ---
 
-## Just one last thing...
-I'm planning to add more features in the future, like more sorting options, and instrument difficulties. For now, I just wanted to share this version with my fellow Clone Hero enthusiasts.
-
+## Just one last thing & AI Agents Disclosure
 I apologize if the setup guide is a bit long or has many options! I know many people visiting this page might not know anything about coding, Git, or GitHub, so I wanted to make sure everyone could get it to work. I hope the guide was clear enough.
 
-I'm no professional web developer—I just know some Python and like to experiment with code. I hope this tool helps you rock! (Or pop, or dance... whatever you like!)
+I'm no professional web developer — I mainly know Python and like to experiment with code. The front-end was built with Claude's help, and the back-end had a few stubborn bugs I also leaned on it to sort out. This project started as something just for me, so I didn't stress too much about polish, so if you found some weird code or beahivour that coulod explain it.
+
+I'm sure any front-end developer could build a much better interface with smarter ways to sort and display everything — and honestly, I'd love to see it. I'm planning to study a bit more about web development and improve things over time, without using the AI agents for this.
+
+Contributions are very welcome! If you want to improve the front-end, add features, or fix bugs, feel free to open a pull request. No contribution is too small — whether it's a design improvement, a new sorting option, or just cleaning up something that bothered you.
+If you're not sure where to start, the front-end is probably the area that could use the most love.
 
 Have fun!!
 

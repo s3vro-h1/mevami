@@ -2,3 +2,4 @@
 oauth.json
 __pycache__/
 *.pyc
+scan_cache.json
