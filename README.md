@@ -551,7 +551,7 @@ Make it even easier for your friends to access your setlist! Just paste your web
 ## Just one last thing & AI Agents Disclosure
 I apologize if the setup guide is a bit long or has many options! I know many people visiting this page might not know anything about coding, Git, or GitHub, so I wanted to make sure everyone could get it to work. I hope the guide was clear enough.
 
-I'm no professional web developer — I mainly know Python and like to experiment with code. The front-end was built with Claude's help, and the back-end had a few stubborn bugs I also leaned on it to sort out. This project started as something just for me, so I didn't stress too much about polish, so if you found some weird code or beahivour that coulod explain it.
+I'm no professional web developer — I mainly know Python and like to experiment with code. The front-end was built with Claude's help, and the back-end had a few stubborn bugs I also leaned on it to sort out. This project started as something just for me, so I didn't stress too much about polish, so if you found some weird code or behavior that could explain it.
 
 I'm sure any front-end developer could build a much better interface with smarter ways to sort and display everything — and honestly, I'd love to see it. I'm planning to study a bit more about web development and improve things over time, without using the AI agents for this.
 
