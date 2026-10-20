@@ -79,6 +79,12 @@ MIDI_TRACK_MAP = {
                
 }
 
+# MIDI tracks that hold vocals/lyrics (solo vocals + vocal harmonies)
+VOCAL_TRACK_NAMES = ('part vocals', 'part harm1', 'part harm2', 'part harm3')
+
+# .chart lyrics live in [Events] as lines like:  1920 = E "lyric Hel-"
+CHART_LYRIC_RE = re.compile(r'=\s*E\s+"lyric\b', re.IGNORECASE)
+
 # Pro Drums: presence of tom-marker notes in PART DRUMS signals Pro Drums support
 PRO_DRUMS_MARKERS = {110, 111, 112}
 
@@ -176,11 +182,14 @@ def find_videos(root, OS):
 
 
 def parse_chart_difficulties(filepath):
-    """Parse a .chart file to find available instruments and difficulties."""
+    """Parse a .chart file. Returns (avail_levels, has_lyrics)."""
     avail_levels = {}
+    has_lyrics = False
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
+
+        has_lyrics = bool(CHART_LYRIC_RE.search(content))
 
         sections = re.findall(r'\[([^\]]+)\]', content)
         for sec in sections:
@@ -195,7 +204,24 @@ def parse_chart_difficulties(filepath):
                             avail_levels[inst].append(diff_clean)
     except Exception:
         pass
-    return avail_levels
+    return avail_levels, has_lyrics
+
+
+def midi_track_has_lyrics(track):
+    """True if a vocal track contains at least one lyric event.
+
+    Lyrics are usually 'lyrics' meta events; some tools write them as plain
+    'text' events instead (bracketed text like [idle] is a venue/vocal cue,
+    not a lyric, so it is ignored).
+    """
+    for msg in track:
+        if msg.type == 'lyrics' and msg.text.strip():
+            return True
+        if msg.type == 'text':
+            t = msg.text.strip()
+            if t and not t.startswith('['):
+                return True
+    return False
 
 
 def parse_midi_difficulties(filepath):
@@ -223,10 +249,17 @@ def parse_midi_difficulties(filepath):
     }
 
     avail_levels = {}
+    has_lyrics = False
     try:
         mid = MidiFile(filepath)
         for track in mid.tracks:
             track_name = track.name.lower().strip()
+
+            # Vocal tracks: only checked for lyrics, not for difficulties
+            if track_name.startswith(VOCAL_TRACK_NAMES):
+                if not has_lyrics and midi_track_has_lyrics(track):
+                    has_lyrics = True
+                continue
 
             # Match track name using MIDI_TRACK_MAP.
             # Longer keys are listed first so "part guitar coop" won't be
@@ -264,18 +297,18 @@ def parse_midi_difficulties(filepath):
 
     except Exception:
         pass
-    return avail_levels
+    return avail_levels, has_lyrics
 
 
 def get_chart_levels(root):
-    """Find notes.chart or notes.mid and return playable difficulties."""
+    """Find notes.chart or notes.mid. Returns (playable_levels, has_lyrics)."""
     for file in os.listdir(root):
         file_lower = file.lower()
         if file_lower == 'notes.chart':
             return parse_chart_difficulties(os.path.join(root, file))
         elif file_lower in ['notes.mid', 'song.mid']:
             return parse_midi_difficulties(os.path.join(root, file))
-    return {}
+    return {}, False
 
 
 
@@ -339,7 +372,11 @@ def scan_songs(OS=config.OS):
             continue
 
         try:
-            chart_levels = get_chart_levels(root)
+            chart_levels, has_lyrics = get_chart_levels(root)
+
+            # Some song.ini files also carry a "lyrics = True" tag; treat it as a bonus signal
+            if config_data.get(section, 'lyrics', fallback='').strip().lower() == 'true':
+                has_lyrics = True
 
             entry = {
                 'artist':  config_data.get(section, 'artist',  fallback='Unknown').strip(),
@@ -350,6 +387,7 @@ def scan_songs(OS=config.OS):
                             or config_data.get(section, 'frets', fallback='').strip()),
                 'lenght':  ms_to_min_string(int(config_data.get(section, 'song_length', fallback='0').strip())),
                 'video_avail': str(find_videos(root, OS)),
+                'lyrics':  str(has_lyrics),
                 'genre':   config_data.get(section, 'genre',   fallback='Unknown').strip().title(),
                 'playable_levels': chart_levels,
             }

@@ -115,7 +115,8 @@
             margin-bottom: 2px;
         }
 
-        .video-badge {
+        .video-badge,
+        .lyrics-badge {
             display: inline-block;
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 700;
@@ -607,6 +608,32 @@
             color: #fff;
         }
 
+        /* Lyrics / video filter toggles */
+        .lyrics-btn,
+        .video-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .lyrics-btn:hover,
+        .video-btn:hover { border-color: var(--primary-dim); color: var(--text); }
+        .lyrics-btn.active,
+        .video-btn.active {
+            background: var(--primary-dark);
+            border-color: var(--primary-dim);
+            color: #fff;
+        }
+
         /* Active filter chips */
         .filter-chip {
             display: inline-flex;
@@ -773,6 +800,8 @@
             ">
                 <option value="">Filter by level…</option>
             </select>
+            <button id="lyrics-btn" class="lyrics-btn" onclick="toggleLyrics()">🎤 Has Lyrics</button>
+            <button id="video-btn" class="video-btn" onclick="toggleVideo()">🎬 Has Video</button>
             <button id="no-info-btn" class="no-info-btn" onclick="toggleNoInfo()">⚠️ No Info</button>
         </div>
         <!-- Active filter chips -->
@@ -861,6 +890,7 @@
                 <div class="rm-year" id="rm-year"></div>
                 <div class="rm-length" id="rm-length"></div>
             </div>
+            <div id="rm-badges" style="display:none; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:12px;"></div>
             <div id="rm-diffs" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px;"></div>
             <div class="rm-actions">
                 <a id="rm-sp" href="#" target="_blank" rel="noopener" class="sp-btn">▶ Spotify</a>
@@ -917,6 +947,10 @@
         ];
 
         let filterNoInfo = false;
+        let filterLyrics = false;
+        let filterVideo = false;
+        // Field in data.json that marks a song as having lyrics (change if yours is named differently)
+        const LYRICS_KEY = 'lyrics';
         // Level filter: { instLabel: Set of difficulty strings } e.g. { Guitar: Set(['Expert']) }
         let levelFilter = {};
         // Instrument filter: Set of diff_* keys
@@ -1011,6 +1045,36 @@
             applySortAndFilter();
         }
 
+        function toggleLyrics() {
+            filterLyrics = !filterLyrics;
+            document.getElementById('lyrics-btn').classList.toggle('active', filterLyrics);
+            buildChips();
+            applySortAndFilter();
+        }
+
+        function toggleVideo() {
+            filterVideo = !filterVideo;
+            document.getElementById('video-btn').classList.toggle('active', filterVideo);
+            buildChips();
+            applySortAndFilter();
+        }
+
+        // data.json uses the string 'True' in video_avail
+        function songHasVideo(s) {
+            const v = s.video_avail;
+            if (v === true || v === 1) return true;
+            if (typeof v === 'string') return ['true', '1', 'yes'].includes(v.trim().toLowerCase());
+            return false;
+        }
+
+        // Accepts true / "True" / "true" / "1" / 1 (data.json uses strings like 'True' elsewhere)
+        function songHasLyrics(s) {
+            const v = s[LYRICS_KEY];
+            if (v === true || v === 1) return true;
+            if (typeof v === 'string') return ['true', '1', 'yes'].includes(v.trim().toLowerCase());
+            return false;
+        }
+
         function setInstSort(key) { onInstSortChange(key); }
 
         const LETTERS = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -1095,7 +1159,10 @@
                     matchesNoInfo = hasNoInstInfo(s);
                 }
 
-                return matchesSearch && matchesGenre && matchesNoInfo && songMatchesLevelFilter(s) && songMatchesInstFilter(s);
+                const matchesLyrics = !filterLyrics || songHasLyrics(s);
+                const matchesVideo = !filterVideo || songHasVideo(s);
+
+                return matchesSearch && matchesGenre && matchesNoInfo && matchesLyrics && matchesVideo && songMatchesLevelFilter(s) && songMatchesInstFilter(s);
             });
 
             // 2. Sort the filtered pool
@@ -1301,6 +1368,22 @@
                 wrap.appendChild(chip);
             }
 
+            // Lyrics chip
+            if (filterLyrics) {
+                const chip = document.createElement('span');
+                chip.className = 'filter-chip';
+                chip.innerHTML = `🎤 Has Lyrics <span class="chip-x" onclick="toggleLyrics()">×</span>`;
+                wrap.appendChild(chip);
+            }
+
+            // Video chip
+            if (filterVideo) {
+                const chip = document.createElement('span');
+                chip.className = 'filter-chip';
+                chip.innerHTML = `🎬 Has Video <span class="chip-x" onclick="toggleVideo()">×</span>`;
+                wrap.appendChild(chip);
+            }
+
             // Level filter chips
             Object.entries(levelFilter).forEach(([instLabel, diffs]) => {
                 diffs.forEach(diff => {
@@ -1418,7 +1501,8 @@
                                 <div class="song-meta-row">
                                     ${s.year ? `<div class="song-year" style="font-size: 0.7rem; color: var(--text);">${esc(s.year)}</div>` : ''}
                                     <div class="song-lenght"> ${esc(s.lenght)}</div>
-                                    ${s.video_avail === 'True' ? '<div class="video-badge">Video ✅</div>' : ''}
+                                    ${songHasVideo(s) ? '<div class="video-badge">Video 🎬</div>' : ''}
+                                    ${songHasLyrics(s) ? '<div class="lyrics-badge">Lyrics 🎤</div>' : ''}
                                     ${unchartedBadge}
                                 </div>
                             </div>
@@ -1483,6 +1567,14 @@
             const genreEl = document.getElementById('rm-genre');
             genreEl.textContent = s.genre || '';
             genreEl.style.display = s.genre ? '' : 'none';
+
+            // Video / lyrics badges
+            const badgesEl = document.getElementById('rm-badges');
+            const badgesHtml =
+                (songHasVideo(s) ? '<div class="video-badge">Video 🎬</div>' : '') +
+                (songHasLyrics(s) ? '<div class="lyrics-badge">Lyrics 🎤</div>' : '');
+            badgesEl.innerHTML = badgesHtml;
+            badgesEl.style.display = badgesHtml ? 'flex' : 'none';
 
             // Build difficulty icons
             let diffsHtml = '';
