@@ -19,6 +19,8 @@ Mevami changes how you manage your Clone Hero library. It makes it easier to:
 
 * **Filtering**: Search by song title, artist, or album.
 
+* **Video & lyrics filters**: Use the **🎬 Has Video** and **🎤 Has Lyrics** buttons to show only the songs that have a video background and/or lyrics. Turn on both to see only songs that have both, and combine them with search, genre and instrument filters. Active filters show up as chips you can remove with a click on the ×.
+
 * **Instrument Difficulty Sorting**: Sort your entire library based on specific instrument difficulties or intensity.
 
 * **Guitar Hero Live support**: Guitar-Live, Bass-Live, Rhythm-Live, and Guitar Co-op-Live instruments are fully recognized and displayed alongside standard instruments.
@@ -48,14 +50,21 @@ Mevami changes how you manage your Clone Hero library. It makes it easier to:
 
 * **External Links**: Spotify and YouTube search buttons for every song in your catalog.
 
-* **Video badge** Identify which songs have video background.
+* **Video and lyrics badges**: Identify at a glance which songs have a video background and which ones have lyrics.
 
 <center>
-<img src="https://imgur.com/KKGuB1e.png" width="30%">
+<img src="https://imgur.com/ZidX6wF.png" width="30%">
 </center>
 
 ## How does it work?
 Mevami uses the Python script `generate_list.py` to scan your clone hero songs folder, then creates two files: `data.json` (Contains all the info from the songs) and `genres.json` (A list of the genres from all your songs).
+
+For each song, the scanner also checks two extra things that power the video and lyrics filters:
+
+* **Video**: a `.mp4` or `.webm` file in the song folder (on Linux only `.webm` is detected).
+* **Lyrics**: lyric events in `notes.chart`, vocal tracks (`PART VOCALS` / `PART HARM1-3`) in the MIDI file, or `lyrics = True` in `song.ini`.
+
+> 💡 **Upgrading from an older version?** Mevami skips songs that haven't changed since the last scan, so songs scanned before lyrics detection existed won't have lyrics info. Delete `scan_cache.json` once and run the scanner (or the publish script) again to refresh your whole library.
 
 `index.html` has the code to build and display your searchable website using the generated files and the resources folder.
 
